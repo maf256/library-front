@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
-import ModalBook from "./ModalBook";
+import ModalAddEditBook from "./ModalAddEditBook";
 import EditIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import { Button } from "@mui/material";
@@ -15,8 +15,10 @@ interface Book {
   total_copies: string;
   genres: object[];
   authors: object[];
-  author_id: number | null; // Assuming id could be null if not set
-  genre_id: number | null; // Assuming id could be null if not set
+  // genreIds: number[] | null;
+  // authorIds: number[] | null;
+  // author_id: number | null; // Assuming id could be null if not set
+  // genre_id: number | null; // Assuming id could be null if not set
   author_name?: string; // Optional for display
   genre_name?: string; // Optional for display
 }
@@ -33,8 +35,8 @@ export default function DataGridBooks() {
     publication_year: '',
     copies_available: '',
     total_copies: '',
-    author_id: null,
-    genre_id: null,
+    // genreIds: null,
+    // authorIds: null
   });
 
   const { data: books = [], error, isLoading } = useQuery<Book[]>({
@@ -108,7 +110,7 @@ export default function DataGridBooks() {
   return (
     <>
       <Button sx={{ mb: 2 }} variant="contained" onClick={() => setOpen(true)}>Add Book</Button>
-      <ModalBook 
+      <ModalAddEditBook 
         open={open} 
         setOpen={setOpen} 
         book={book} 

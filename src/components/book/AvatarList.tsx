@@ -1,38 +1,33 @@
-import React from "react";
 import { Typography, IconButton, List, ListItem, ListItemAvatar, Avatar, ListItemText, Grid2 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import FolderIcon from "@mui/icons-material/Folder";
 import Grid from '@mui/material/Grid2';
 
 import { styled } from "@mui/system";
 
-// Sample array of objects
-const data = [
-  { id: 14, name: "Music 2" },
-  { id: 17, name: "Action" },
-];
-
 // Styled container
 const Demo = styled("div")(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+  // backgroundColor: theme.palette.background.paper,
   padding: theme.spacing(2),
   borderRadius: theme.shape.borderRadius,
 }));
 
 interface Props {
     items: { id: number; name: string }[];
+    name: string;
     onDelete: (id: number) => void;
   }
 interface AvatarListProps {
 items: { id: number; name: string }[];
+name: string;
 onDelete: (id: number) => void;
 }
 
-  function AvatarList({ items, onDelete }: AvatarListProps) {
-    return (
-    <Grid item xs={12} md={6}>
+export default function AvatarList({ items, onDelete, name }: AvatarListProps) {
+  
+  return (
+    <Grid xs={12} md={6}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-        Avatar with Text and Icon
+        List of {name}
       </Typography>
       <Demo>
         <List dense>
@@ -45,11 +40,6 @@ onDelete: (id: number) => void;
                 </IconButton>
               }
             >
-              <ListItemAvatar>
-                <Avatar>
-                  <FolderIcon />
-                </Avatar>
-              </ListItemAvatar>
               <ListItemText primary={item.name} />
             </ListItem>
           ))}
@@ -60,17 +50,15 @@ onDelete: (id: number) => void;
 };
 
 // Example usage
-const App = () => {
-  const handleDelete = (id: number) => {
-    console.log("Deleted item with ID:", id);
-    // Implement delete logic here
-  };
+// const App = () => {
+//   const handleDelete = (id: number) => {
+//     console.log("Deleted item with ID:", id);
+//     // Implement delete logic here
+//   };
 
-  return (
-    <Grid container spacing={2}>
-      <AvatarList items={data} onDelete={handleDelete} />
-    </Grid>
-  );
-};
-
-export default App;
+//   return (
+//     <Grid container spacing={2}>
+//       <AvatarList items={data} onDelete={handleDelete} />
+//     </Grid>
+//   );
+// };
