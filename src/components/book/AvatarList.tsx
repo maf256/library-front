@@ -26,7 +26,7 @@ export default function AvatarList({ items, onDelete, name }: AvatarListProps) {
   
   return (
     <Grid xs={12} md={6}>
-      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+      <Typography  variant="h7" component="div">
         List of {name}
       </Typography>
       <Demo>

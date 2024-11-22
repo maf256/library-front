@@ -2,8 +2,6 @@ import React, { useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ModalDialog } from '@mui/joy';
 import AvatarList from "./AvatarList";
-
-
 import { 
   Modal,
   Button,
@@ -15,7 +13,6 @@ import {
   Stack,
   TextField, 
 } from "@mui/material";
-import { set } from "date-fns";
 
 interface Genre {
   id: number;
@@ -48,7 +45,7 @@ interface ModalBookProps {
   // book: Book;
   // setBook: React.Dispatch<React.SetStateAction<Book>>;
   book: Book;
-  setBook: any;
+  setBook: React.Dispatch<React.SetStateAction<Book>>;
   isEdit?: boolean;
   setEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -87,8 +84,8 @@ export default function ModalAddEditBook({ open, setOpen, book, setBook, isEdit,
         total_copies: '',
         genres: [],
         authors: [],
-        // author_id: authors[0].id,
-        // genre_id: genres[0].id,
+        genreIds: null,
+        authorIds: null
       });
     }
   }, [open, isEdit, genres, authors, setBook]);
@@ -103,8 +100,8 @@ export default function ModalAddEditBook({ open, setOpen, book, setBook, isEdit,
       total_copies: '',
       genres: [],
       authors: [],
-      // author_id: authors[0]?.id || 0,
-      // genre_id: genres[0]?.id || 0,
+      genreIds: null,
+      authorIds: null
     });
 
   }, [setOpen, setEdit, setBook, authors, genres]);
@@ -128,23 +125,14 @@ function filterAuthors() {
 }
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
   event.preventDefault();
-  alert(JSON.stringify(book));
-  console.log("book before submit",book);
   function extractIds(items: { id: number }[]): number[] {
     return items.map((item) => item.id);
   }
   const genreIds = extractIds(book.genres)
   const authorIds = extractIds(book.authors)
-  console.log("genreIds",genreIds);
-  console.log("authorIds",authorIds);
   
 
-  const returnedTarget = Object.assign(book,{genreIds},{authorIds});
-  // returnedTarget = Object.assign(book,{authorIds});
-  console.log("returnedTarget",returnedTarget);
-  
-
-    
+  Object.assign(book,{genreIds},{authorIds});
 
     try {
       const url = isEdit ? `http://localhost:3000/book/${book.id}` : "http://localhost:3000/book";
