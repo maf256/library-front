@@ -48,8 +48,14 @@ const addOrUpdateAuthor = async (author: Author, onEdit: number) => {
     throw new Error(errorDetails.message || "Failed to update author");
   }
 };
-
-export default function ModalAuthor({ openModalAuthor, setOpenModalAuthor }) {
+interface ModalAuthorProps {
+  openModalAuthor: boolean;
+  setOpenModalAuthor: (value: boolean) => void;
+}
+export default function ModalAuthor({
+  openModalAuthor,
+  setOpenModalAuthor,
+}: ModalAuthorProps) {
   const [author, setAuthor] = React.useState<Author>({
     name: "",
     biography: "",

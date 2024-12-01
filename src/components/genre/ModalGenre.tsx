@@ -7,7 +7,7 @@ import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import DialogTitle from "@mui/joy/DialogTitle";
 import Stack from "@mui/joy/Stack";
-import DataGridC from "./DataGridC";
+import DataGridGenres from "./DataGridC";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Genre {
@@ -15,8 +15,15 @@ interface Genre {
   name: string;
 }
 
-export default function ModalGenre({ openModalGenre, setOpenModalGenre }) {
-  const initialGenre: Genre = { name: "" };
+interface ModalGenreProps {
+  openModalGenre: boolean;
+  setOpenModalGenre: (value: boolean) => void;
+}
+export default function ModalGenre({
+  openModalGenre,
+  setOpenModalGenre,
+}: ModalGenreProps) {
+  const initialGenre: Genre = {id: -1 ,name: "" };
   const [genreName, setGenreName] = React.useState<Genre>(initialGenre);
   const [onEdit, setOnEdit] = React.useState<number>(-1);
   const queryClient = useQueryClient();
@@ -54,11 +61,13 @@ export default function ModalGenre({ openModalGenre, setOpenModalGenre }) {
       if (!response.ok)
         throw new Error(`Failed to ${onEdit === -1 ? "add" : "update"} genre`);
 
-      setGenreName(initialGenre);
       await queryClient.invalidateQueries(
         { queryKey: ["genres"] },
         { throwOnError: true }
       );
+      console.log("genreName before set=",genreName);
+      setGenreName({id: -1 ,name: "" });
+      setOnEdit(-1);
       alert(`Genre ${onEdit === -1 ? "added" : "updated"} successfully`);
     } catch (error) {
       console.error(error);
@@ -77,9 +86,6 @@ export default function ModalGenre({ openModalGenre, setOpenModalGenre }) {
 
   return (
     <>
-      {/* <Button variant="contained" onClick={() => setOpenModalGenre(true)}>
-        Genre
-      </Button> */}
       <Modal open={openModalGenre} onClose={handleClose}>
         <ModalDialog>
           <DialogTitle sx={{ ml: 3 }}>Genre</DialogTitle>
@@ -105,7 +111,7 @@ export default function ModalGenre({ openModalGenre, setOpenModalGenre }) {
               </Button>
             </Stack>
           </form>
-          <DataGridC data={data || []} setOnEdit={setOnEdit} />
+          <DataGridGenres data={data || []} setOnEdit={setOnEdit} />
         </ModalDialog>
       </Modal>
     </>

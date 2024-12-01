@@ -16,14 +16,12 @@ interface DataGridCProps {
   setOnEdit: (value: number) => void;
 }
 
-export default function DataGridC({ data, setOnEdit }: DataGridCProps) {
+export default function DataGridGenres({ data, setOnEdit }: DataGridCProps) {
   const queryClient = useQueryClient();
 
-  const handleSave = React.useCallback(
+  const handleEdit = React.useCallback(
     async (id: number) => {
       setOnEdit(id);
-      // Uncomment and implement saving logic if needed
-      // await updateGenre(id);
     },
     [setOnEdit]
   );
@@ -68,7 +66,7 @@ export default function DataGridC({ data, setOnEdit }: DataGridCProps) {
         <>
           <EditIcon
             sx={{ cursor: "pointer", m: 1 }}
-            onClick={() => handleSave(params.row.id)}
+            onClick={() => handleEdit(params.row.id)}
           />
           <CloseIcon
             sx={{ cursor: "pointer", m: 1 }}
