@@ -15,9 +15,8 @@ interface Genre {
   name: string;
 }
 
-export default function ModalGenre() {
+export default function ModalGenre({openModalGenre, setOpenModalGenre}) {
   const initialGenre: Genre = { name: '' };
-  const [open, setOpen] = React.useState(false);
   const [genreName, setGenreName] = React.useState<Genre>(initialGenre);
   const [onEdit, setOnEdit] = React.useState<number>(-1);
   const queryClient = useQueryClient();
@@ -61,7 +60,7 @@ export default function ModalGenre() {
   }, [genreName, onEdit, queryClient]);
 
   const handleClose = React.useCallback(() => {
-    setOpen(false);
+    setOpenModalGenre(false);
     setOnEdit(-1);
     setGenreName(initialGenre);
   }, []);
@@ -71,10 +70,10 @@ export default function ModalGenre() {
 
   return (
     <>
-      <Button variant="contained" onClick={() => setOpen(true)}>
+      {/* <Button variant="contained" onClick={() => setOpenModalGenre(true)}>
         Genre
-      </Button>
-      <Modal open={open} onClose={handleClose}>
+      </Button> */}
+      <Modal open={openModalGenre} onClose={handleClose}>
         <ModalDialog>
           <DialogTitle sx={{ ml: 3 }}>Genre</DialogTitle>
           <form

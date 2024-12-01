@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { useQueryClient } from "@tanstack/react-query";
-import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import React from 'react';
 
@@ -58,14 +58,14 @@ export default function DataGridC({ data, setOnEdit }: DataGridCProps) {
       width: 100,
       renderCell: (params: GridRenderCellParams) => (
         <>
-          <SaveIcon sx={{ cursor: 'pointer', m: 1 }} onClick={() => handleSave(params.row.id)} />
+          <EditIcon sx={{ cursor: 'pointer', m: 1 }} onClick={() => handleSave(params.row.id)} />
           <CloseIcon sx={{ cursor: 'pointer', m: 1 }} onClick={() => handleRemove(params.row.id)} />
         </>
       ),
     },
   ];
 
-  const rows = data.map((genre) => ({
+  const rows = data.map((genre: { id: any; name: any; }) => ({
     id: genre.id,
     name: genre.name,
   }));

@@ -16,8 +16,19 @@ interface Author {
   id?: number;
   name: string;
   biography: string;
-  birthday: string;
+  birthday: string | null; // ISO 8601 format is a string
 }
+
+
+function convertToISO8601(input: string | Date): string {
+  const date = input instanceof Date ? input : new Date(input);
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date provided");
+  }
+  return date.toISOString().split("T")[0];
+}
+
+
 
 const fetchAuthors = async (): Promise<Author[]> => {
   const response = await fetch("http://localhost:3000/author");
@@ -40,9 +51,8 @@ const addOrUpdateAuthor = async (author: Author, onEdit: number) => {
   }
 };
 
-export default function ModalAuthor() {
-  const [open, setOpen] = React.useState<boolean>(false);
-  const [author, setAuthor] = React.useState<Author>({ name: '', biography: '', birthday: '' });
+export default function ModalAuthor({ openModalAuthor, setOpenModalAuthor }) {
+  const [author, setAuthor] = React.useState<Author>({ name: '', biography: '', birthday: null });
   const [onEdit, setOnEdit] = React.useState<number>(-1);
   const [filter, setFilter] = React.useState<string>('');
   const [filterData, setFilterData] = React.useState<Author[] | null>(null);
@@ -55,7 +65,7 @@ export default function ModalAuthor() {
 
   React.useEffect(() => {
     if (onEdit === -1) {
-      setAuthor({ name: '', biography: '', birthday: '' });
+      setAuthor({ name: '', biography: '', birthday: null });
     } else {
       const foundAuthor = data?.find((obj) => obj.id === onEdit);
       if (foundAuthor) setAuthor(foundAuthor);
@@ -63,7 +73,7 @@ export default function ModalAuthor() {
   }, [onEdit, data]);
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenModalAuthor(false);
     setOnEdit(-1);
     setFilter('');
     setFilterData(null);
@@ -79,31 +89,68 @@ export default function ModalAuthor() {
         },
         { throwOnError: true },
       );
-      alert(`Author ${onEdit === -1 ? 'added' : 'updated'} successfully`);
-    } catch (error) {
+      alert(`Author ${onEdit === -1 ? "added" : "updated"} successfully.`);
+    } catch (error: any) {
       console.error(error);
-      alert(`Error ${onEdit === -1 ? 'adding' : 'updating'} author: ${error}`);
+      alert(`Failed to ${onEdit === -1 ? "add" : "update"} author: ${error.message || "Unknown error"}`);
     }
     setOnEdit(-1);
-    setAuthor({ name: '', biography: '', birthday: '' });
+    setAuthor({ name: '', biography: '', birthday: null });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const filteredNames = data?.filter((author) => 
-        author.name.toLowerCase().startsWith(filter.toLowerCase())
-      );
-      setFilterData(filteredNames || null);
+    if (e.key === "Enter") {
+      if (!filter.trim()) {
+        setFilterData(null);
+      } else {
+        const filteredNames = data?.filter((author) =>
+          author.name.toLowerCase().startsWith(filter.toLowerCase())
+        );
+        setFilterData(filteredNames || null);
+      }
     }
   };
+  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-
+  function isValidBirthday(birthday: string | number | Date) {
+    // Check if it matches the ISO 8601 format (YYYY-MM-DD)
+    console.log("birthday=",birthday);
+    console.log(author);
+    
+    
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!isoDateRegex.test(birthday)) {
+      return false;
+    }
+  
+    // Parse the date and check if it's valid
+    const date = new Date(birthday);
+    const isValidDate = !isNaN(date.getTime()); // Check if it’s a valid date
+  
+    // Ensure the date matches the input (to avoid issues like `2024-02-30`)
+    const [year, month, day] = birthday.split('-').map(Number);
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() + 1 !== month || // Month is 0-indexed
+      date.getUTCDate() !== day
+    ) {
+      return false;
+    }
+  
+    // Optionally, ensure the date is not in the future
+    const today = new Date();
+    if (date > today) {
+      return false;
+    }
+  
+    return true;
+  }
   return (
     <React.Fragment>
-      <Button variant="contained" onClick={() => setOpen(true)}>Author</Button>
-      <Modal open={open} onClose={handleClose}>
+      {/* <Button variant="contained" onClick={() => setOpenModalAuthor(true)}>Author</Button> */}
+      <Modal open={openModalAuthor} onClose={handleClose}>
         <ModalDialog>
           <DialogTitle sx={{ ml: 3 }}>Author</DialogTitle>
           <form onSubmit={(event) => { event.preventDefault(); handleSubmit(); }}>
@@ -124,13 +171,21 @@ export default function ModalAuthor() {
                   rows={4}
                   onChange={(e) => setAuthor({ ...author, biography: e.target.value })} 
                 />
-                <FormLabel>Birthday</FormLabel>
-                <Input 
-                  required
-                  value={author.birthday}
-                  type="date"
-                  onChange={(e) => setAuthor({ ...author, birthday: e.target.value })}
-                />
+               <FormLabel>Birthday</FormLabel>
+               <Input
+                required
+                type="date"
+                value={author.birthday ? author.birthday.split("T")[0] : ""} // Format to YYYY-MM-DD
+                onChange={(e) => {
+                  const inputDate = e.target.value; // Already in YYYY-MM-DD format
+                  if (isValidBirthday(inputDate)) {
+                    setAuthor({ ...author, birthday: inputDate });
+                  } else {
+                    alert("Invalid birthday format or date in the future.");
+                  }
+                }}
+              />
+
               </FormControl>
               <Button disabled={!author.name || !author.biography || !author.birthday} type="submit">
                 {onEdit === -1 ? 'Add' : 'Update'}

@@ -1,42 +1,56 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
 
 import ModalAddEditBook from "./ModalAddEditBook";
-import EditIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { Button } from "@mui/material";
+import ModalAuthor from "../author/ModalAuthor";
+import ModalGenre from "../genre/ModalGenre";
 
+interface Genre {
+  id: number;
+  name: string;
+}
+
+interface Author {
+  id: number;
+  name: string;
+}
 interface Book {
   id: number;
   title: string;
-  publication_year: string;
+  publication_year: Number | null;
   copies_available: string;
   total_copies: string;
-  genres: object[];
-  authors: object[];
-  // genreIds: number[] | null;
-  // authorIds: number[] | null;
-  // author_id: number | null; // Assuming id could be null if not set
-  // genre_id: number | null; // Assuming id could be null if not set
+  genres: Genre[];
+  authors: Author[];
+  genreIds: number[] | null;
+  authorIds: number[] | null;
   author_name?: string; // Optional for display
   genre_name?: string; // Optional for display
 }
 
+
 export default function DataGridBooks() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
+  const [openModalAuthor, setOpenModalAuthor] = React.useState<boolean>(false);
+  const [openModalGenre, setOpenModalGenre] = React.useState(false);
+
+
   const [editMode, setEditMode] = useState<boolean>(false);
   const [book, setBook] = useState<Book>({
     id: 0, // Default id; adjust based on your needs
     title: '',
     genres: [],
     authors: [],
-    publication_year: '',
+    publication_year: null,
     copies_available: '',
     total_copies: '',
-    // genreIds: null,
-    // authorIds: null
+    genreIds: null,
+    authorIds: null
   });
 
   const { data: books = [], error, isLoading } = useQuery<Book[]>({
@@ -100,16 +114,42 @@ export default function DataGridBooks() {
       width: 100,
       renderCell: (cellValues) => (
         <>
-          <EditIcon onClick={(event) => handleEdit(event, cellValues)} />
-          <CloseIcon sx={{ ml: 1 }} onClick={(event) => handleRemove(event, cellValues)} />
+          <EditIcon sx={{ cursor: 'pointer', m: 1 }} onClick={(event) => handleEdit(event, cellValues)} />
+          <CloseIcon sx={{ cursor: 'pointer', m: 1 }} onClick={(event) => handleRemove(event, cellValues)} />
         </>
       ),
     },
   ];
-    
+// _______________________________________________________________________________
+
+function EditToolbar() {
+
+  return (
+    <GridToolbarContainer>
+      <Button color="primary"  onClick={() => setOpen(true)}>
+        Add record
+      </Button>
+      <Button color="primary"  onClick={()=>setOpenModalAuthor(true)}>
+        Authors
+      </Button>      
+      <Button color="primary"  onClick={()=>setOpenModalGenre(true)}>
+        Genres
+      </Button>
+    </GridToolbarContainer>
+  );
+}
+
+
+// _________________________
+
+
+  
   return (
     <>
-      <Button sx={{ mb: 2 }} variant="contained" onClick={() => setOpen(true)}>Add Book</Button>
+      <ModalAuthor openModalAuthor={openModalAuthor} setOpenModalAuthor={setOpenModalAuthor}/>
+      <ModalGenre openModalGenre={openModalGenre} setOpenModalGenre={setOpenModalGenre}/>
+
+      {/* <Button sx={{ mb: 2 }} variant="contained" onClick={() => setOpen(true)}>Add Book</Button> */}
       <ModalAddEditBook 
         open={open} 
         setOpen={setOpen} 
@@ -121,6 +161,9 @@ export default function DataGridBooks() {
       <DataGrid
         rows={books} // Pass correctly formatted rows
         columns={columns}
+        slots={{ 
+          toolbar: EditToolbar as GridSlots['toolbar'],
+         }}
         initialState={{
           pagination: {
             paginationModel: {

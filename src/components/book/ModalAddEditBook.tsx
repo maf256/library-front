@@ -24,10 +24,10 @@ interface Author {
   name: string;
 }
 
-interface Book {
+interface Book2 {
   id?: number;
   title: string;
-  publication_year: string;
+  publication_year: Number | null;
   copies_available: string;
   total_copies: string;
   genres: Genre[];
@@ -44,8 +44,8 @@ interface ModalBookProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   // book: Book;
   // setBook: React.Dispatch<React.SetStateAction<Book>>;
-  book: Book;
-  setBook: React.Dispatch<React.SetStateAction<Book>>;
+  book: Book2;
+  setBook: any;
   isEdit?: boolean;
   setEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -79,7 +79,7 @@ export default function ModalAddEditBook({ open, setOpen, book, setBook, isEdit,
     if (open && !isEdit && genres.length && authors.length) {
       setBook({
         title: '',
-        publication_year: '',
+        publication_year: 0,
         copies_available: '',
         total_copies: '',
         genres: [],
@@ -95,7 +95,7 @@ export default function ModalAddEditBook({ open, setOpen, book, setBook, isEdit,
     setEdit(false);
     setBook({
       title: '',
-      publication_year: '',
+      publication_year: 0,
       copies_available: '',
       total_copies: '',
       genres: [],
@@ -123,24 +123,33 @@ function filterAuthors() {
   const bIds = book.authors.map(item => item.id); // Extract the IDs from array b
   return authors.filter(author => !bIds.includes(author.id)); // Filter genres not in b
 }
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
   event.preventDefault();
   function extractIds(items: { id: number }[]): number[] {
     return items.map((item) => item.id);
   }
   const genreIds = extractIds(book.genres)
   const authorIds = extractIds(book.authors)
+  const clone = {
+    ...book,
+    genreIds,
+    authorIds,
+  };
+
+  // Remove unwanted properties
+  delete (clone as any).genres;
+  delete (clone as any).authors;
   
 
-  Object.assign(book,{genreIds},{authorIds});
-
+  console.log("clone=",clone);
+  
     try {
       const url = isEdit ? `http://localhost:3000/book/${book.id}` : "http://localhost:3000/book";
       const method = isEdit ? "PUT" : "POST";
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(book),
+        body: JSON.stringify(clone),
       });
       if (!response.ok) throw new Error(`Failed to ${isEdit ? 'update' : 'add'} book`);
       
@@ -154,28 +163,27 @@ function filterAuthors() {
       console.error(error);
       alert(`Error ${isEdit ? 'updating' : 'adding'} book`);
     }
-  };
+};
 
-  if (genreLoading || authorLoading) return <div>Loading...</div>;
-  if (genreError || authorError) return <div>Error loading genres or authors.</div>;
+if (genreLoading || authorLoading) return <div>Loading...</div>;
+if (genreError || authorError) return <div>Error loading genres or authors.</div>;
 
-  const handleSelectChange = (
-    selectedId: number,
-    type: "genres" | "authors",
-    allItems: Genre[] | Author[],
-    setFilter: React.Dispatch<React.SetStateAction<Genre[] | Author[]>>,
-    setBook: React.Dispatch<React.SetStateAction<Book>>
-  ) => {
-    const selectedItem = allItems.find((item) => item.id === selectedId);
-    if (selectedItem) {
-      setBook((prevBook) => ({
-        ...prevBook,
-        [type]: [...prevBook[type], selectedItem],
-      }));
-      setFilter((prevFilter) => prevFilter.filter((item) => item.id !== selectedId));
-    }
-  };
-  
+const handleSelectChange = (
+  selectedId: number,
+  type: "genres" | "authors",
+  allItems: Genre[] | Author[],
+  setFilter: React.Dispatch<React.SetStateAction<Genre[] | Author[]>>,
+  setBook: React.Dispatch<React.SetStateAction<Book2>>
+) => {
+  const selectedItem = allItems.find((item) => item.id === selectedId);
+  if (selectedItem) {
+    setBook((prevBook) => ({
+      ...prevBook,
+      [type]: [...prevBook[type], selectedItem],
+    }));
+    setFilter((prevFilter) => prevFilter.filter((item) => item.id !== selectedId));
+  }
+};
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -275,8 +283,10 @@ function filterAuthors() {
               label="Publication Year"
               variant="filled"
               size="small"
+              type="number"
+              inputProps={{ min: 1000, max: new Date().getFullYear() }}
               value={book.publication_year}
-              onChange={(e) => setBook({ ...book, publication_year: e.target.value })}
+              onChange={(e) => setBook({ ...book, publication_year: Number(e.target.value) })}
             />
             <Button
               type="submit"

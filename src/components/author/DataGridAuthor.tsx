@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { GridValueFormatter } from '@mui/x-data-grid/models';
 import { useQueryClient } from "@tanstack/react-query";
-import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { format } from 'date-fns';
 
@@ -64,10 +64,7 @@ export default function DataGridAuthor({ data, setOnEdit }: ChildComponentProps)
       field: 'birthday',
       headerName: 'Birthday',
       width: 300,
-      valueFormatter: (params: { value?: string }) => {
-        if (!params.value) return '';
-        return format(new Date(params.value), 'dd/MM/yyyy');
-      },
+      editable: false,
     },
     {
       field: 'action',
@@ -75,8 +72,8 @@ export default function DataGridAuthor({ data, setOnEdit }: ChildComponentProps)
       width: 100,
       renderCell: (cellValues) => (
         <>
-          <SaveIcon onClick={(event) => handleSave(event, cellValues)} />
-          <CloseIcon sx={{ ml: 1 }} onClick={(event) => handleRemove(event, cellValues)} />
+          <EditIcon sx={{ cursor: 'pointer', m: 1 }} onClick={(event) => handleSave(event, cellValues)} />
+          <CloseIcon sx={{ cursor: 'pointer', m: 1 }} onClick={(event) => handleRemove(event, cellValues)} />
         </>
       ),
     },
