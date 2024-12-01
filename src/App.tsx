@@ -1,28 +1,27 @@
-import {Typography, Box } from '@mui/material';
-import ModalGenre from "./components/genre/ModalGenre";
-import ModalAuthor from "./components/author/ModalAuthor";
+import { Typography, Box } from "@mui/material";
 import DataGridBooks from "./components/book/DataGridBook";
-
 
 function App() {
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }} maxWidth="sm">
-        <Typography variant="h4" component="h1" gutterBottom>Hello Vite + React!</Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {/* <ModalGenre/> */}
-          {/* <ModalAuthor/> */}
-      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+        }}
+        maxWidth="sm">
+        <Typography variant="h4" component="h1" gutterBottom>
+          Library
+        </Typography>
       </Box>
       <Box>
         <DataGridBooks />
       </Box>
-
     </>
   );
 }
-
-
 
 export default App;
 

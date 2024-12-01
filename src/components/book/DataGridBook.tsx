@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { DataGrid, GridColDef, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridSlots,
+  GridToolbarContainer,
+} from "@mui/x-data-grid";
 
 import ModalAddEditBook from "./ModalAddEditBook";
-import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 import { Button } from "@mui/material";
 import ModalAuthor from "../author/ModalAuthor";
 import ModalGenre from "../genre/ModalGenre";
@@ -32,28 +37,30 @@ interface Book {
   genre_name?: string; // Optional for display
 }
 
-
 export default function DataGridBooks() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
   const [openModalAuthor, setOpenModalAuthor] = React.useState<boolean>(false);
   const [openModalGenre, setOpenModalGenre] = React.useState(false);
 
-
   const [editMode, setEditMode] = useState<boolean>(false);
   const [book, setBook] = useState<Book>({
     id: 0, // Default id; adjust based on your needs
-    title: '',
+    title: "",
     genres: [],
     authors: [],
     publication_year: null,
-    copies_available: '',
-    total_copies: '',
+    copies_available: "",
+    total_copies: "",
     genreIds: null,
-    authorIds: null
+    authorIds: null,
   });
 
-  const { data: books = [], error, isLoading } = useQuery<Book[]>({
+  const {
+    data: books = [],
+    error,
+    isLoading,
+  } = useQuery<Book[]>({
     queryKey: ["books"],
     queryFn: async () => {
       const response = await fetch("http://localhost:3000/book");
@@ -61,10 +68,10 @@ export default function DataGridBooks() {
       return response.json();
     },
   });
-  
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  
+
   const handleEdit = (event: any, cellValues: any) => {
     setBook(cellValues.row);
     setOpen(true);
@@ -72,98 +79,114 @@ export default function DataGridBooks() {
   };
 
   const handleRemove = async (event: any, cellValues: any) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this book?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this book?"
+    );
     if (!confirmDelete) return;
 
     try {
       await fetch(`http://localhost:3000/book/${cellValues.row.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      alert('Successfully deleted book');
+      alert("Successfully deleted book");
       queryClient.invalidateQueries({
-        queryKey: ['books']
+        queryKey: ["books"],
       }); // Refetch after deletion
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error deleting book. Please try again.');
+      console.error("Error:", error);
+      alert("Error deleting book. Please try again.");
     }
   };
 
   const columns: GridColDef[] = [
-    { field: 'title', headerName: 'Title', width: 200 },
+    { field: "title", headerName: "Title", width: 200 },
     {
-      field: 'genres',
-      headerName: 'Genres',
+      field: "genres",
+      headerName: "Genres",
       width: 200,
       valueGetter: (params: []) => {
-        return params?.map((genre: { name: string }) => genre.name).join(', ') || 'No genres';
-      }    
+        return (
+          params?.map((genre: { name: string }) => genre.name).join(", ") ||
+          "No genres"
+        );
+      },
     },
     {
-      field: 'authors',
-      headerName: 'Authors',
+      field: "authors",
+      headerName: "Authors",
       width: 200,
       valueGetter: (params: []) => {
-        return params?.map((author: { name: string }) => author.name).join(', ') || 'No authors';
-      }
+        return (
+          params?.map((author: { name: string }) => author.name).join(", ") ||
+          "No authors"
+        );
+      },
     },
-    { field: 'publication_year', headerName: 'Publication Year', width: 150 },
+    { field: "publication_year", headerName: "Publication Year", width: 150 },
     {
-      field: 'action',
-      headerName: 'Action',
+      field: "action",
+      headerName: "Action",
       width: 100,
       renderCell: (cellValues) => (
         <>
-          <EditIcon sx={{ cursor: 'pointer', m: 1 }} onClick={(event) => handleEdit(event, cellValues)} />
-          <CloseIcon sx={{ cursor: 'pointer', m: 1 }} onClick={(event) => handleRemove(event, cellValues)} />
+          <EditIcon
+            sx={{ cursor: "pointer", m: 1 }}
+            onClick={(event) => handleEdit(event, cellValues)}
+          />
+          <CloseIcon
+            sx={{ cursor: "pointer", m: 1 }}
+            onClick={(event) => handleRemove(event, cellValues)}
+          />
         </>
       ),
     },
   ];
-// _______________________________________________________________________________
+  // _______________________________________________________________________________
 
-function EditToolbar() {
+  function EditToolbar() {
+    return (
+      <GridToolbarContainer>
+        <Button color="primary" onClick={() => setOpen(true)}>
+          Add Book
+        </Button>
+        <Button color="primary" onClick={() => setOpenModalAuthor(true)}>
+          Authors
+        </Button>
+        <Button color="primary" onClick={() => setOpenModalGenre(true)}>
+          Genres
+        </Button>
+      </GridToolbarContainer>
+    );
+  }
 
-  return (
-    <GridToolbarContainer>
-      <Button color="primary"  onClick={() => setOpen(true)}>
-        Add record
-      </Button>
-      <Button color="primary"  onClick={()=>setOpenModalAuthor(true)}>
-        Authors
-      </Button>      
-      <Button color="primary"  onClick={()=>setOpenModalGenre(true)}>
-        Genres
-      </Button>
-    </GridToolbarContainer>
-  );
-}
+  // _________________________
 
-
-// _________________________
-
-
-  
   return (
     <>
-      <ModalAuthor openModalAuthor={openModalAuthor} setOpenModalAuthor={setOpenModalAuthor}/>
-      <ModalGenre openModalGenre={openModalGenre} setOpenModalGenre={setOpenModalGenre}/>
+      <ModalAuthor
+        openModalAuthor={openModalAuthor}
+        setOpenModalAuthor={setOpenModalAuthor}
+      />
+      <ModalGenre
+        openModalGenre={openModalGenre}
+        setOpenModalGenre={setOpenModalGenre}
+      />
 
       {/* <Button sx={{ mb: 2 }} variant="contained" onClick={() => setOpen(true)}>Add Book</Button> */}
-      <ModalAddEditBook 
-        open={open} 
-        setOpen={setOpen} 
-        book={book} 
-        setBook={setBook} 
-        isEdit={editMode} 
-        setEdit={setEditMode} 
+      <ModalAddEditBook
+        open={open}
+        setOpen={setOpen}
+        book={book}
+        setBook={setBook}
+        isEdit={editMode}
+        setEdit={setEditMode}
       />
       <DataGrid
         rows={books} // Pass correctly formatted rows
         columns={columns}
-        slots={{ 
-          toolbar: EditToolbar as GridSlots['toolbar'],
-         }}
+        slots={{
+          toolbar: EditToolbar as GridSlots["toolbar"],
+        }}
         initialState={{
           pagination: {
             paginationModel: {

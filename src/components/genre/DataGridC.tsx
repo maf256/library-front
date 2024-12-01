@@ -1,9 +1,9 @@
-import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import Box from "@mui/material/Box";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { useQueryClient } from "@tanstack/react-query";
-import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
-import React from 'react';
+import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
+import React from "react";
 
 interface Genre {
   id: number;
@@ -19,59 +19,73 @@ interface DataGridCProps {
 export default function DataGridC({ data, setOnEdit }: DataGridCProps) {
   const queryClient = useQueryClient();
 
-  const handleSave = React.useCallback(async (id: number) => {
-    setOnEdit(id);
-    // Uncomment and implement saving logic if needed
-    // await updateGenre(id);
-  }, [setOnEdit]);
+  const handleSave = React.useCallback(
+    async (id: number) => {
+      setOnEdit(id);
+      // Uncomment and implement saving logic if needed
+      // await updateGenre(id);
+    },
+    [setOnEdit]
+  );
 
-  const handleRemove = React.useCallback(async (id: number) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this genre?');
-    if (!confirmDelete) return;
-    try {
-      const response = await fetch(`http://localhost:3000/genre/${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete genre');
+  const handleRemove = React.useCallback(
+    async (id: number) => {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this genre?"
+      );
+      if (!confirmDelete) return;
+      try {
+        const response = await fetch(`http://localhost:3000/genre/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Failed to delete genre");
 
-      await queryClient.invalidateQueries({
-        queryKey: ['genres'],
-        refetchType: 'active',
-      });
-      alert('Genre deleted successfully');
-    } catch (error) {
-      console.error(error);
-      alert('Error deleting genre: ' + error);
-    }
-  }, [queryClient]);
+        await queryClient.invalidateQueries({
+          queryKey: ["genres"],
+          refetchType: "active",
+        });
+        alert("Genre deleted successfully");
+      } catch (error) {
+        console.error(error);
+        alert("Error deleting genre: " + error);
+      }
+    },
+    [queryClient]
+  );
 
   const columns: GridColDef[] = [
     {
-      field: 'name',
-      headerName: 'Name',
+      field: "name",
+      headerName: "Name",
       width: 200,
       editable: true,
     },
     {
-      field: 'action',
-      headerName: 'Action',
+      field: "action",
+      headerName: "Action",
       width: 100,
       renderCell: (params: GridRenderCellParams) => (
         <>
-          <EditIcon sx={{ cursor: 'pointer', m: 1 }} onClick={() => handleSave(params.row.id)} />
-          <CloseIcon sx={{ cursor: 'pointer', m: 1 }} onClick={() => handleRemove(params.row.id)} />
+          <EditIcon
+            sx={{ cursor: "pointer", m: 1 }}
+            onClick={() => handleSave(params.row.id)}
+          />
+          <CloseIcon
+            sx={{ cursor: "pointer", m: 1 }}
+            onClick={() => handleRemove(params.row.id)}
+          />
         </>
       ),
     },
   ];
 
-  const rows = data.map((genre: { id: any; name: any; }) => ({
+  const rows = data.map((genre: { id: any; name: any }) => ({
     id: genre.id,
     name: genre.name,
   }));
 
   return (
-    <Box sx={{ height: 400, width: '100%' }}>
+    <Box sx={{ height: 400, width: "100%" }}>
       <DataGrid
         rows={rows}
         columns={columns}
