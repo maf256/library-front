@@ -152,8 +152,6 @@ export default function ModalAddEditBook({
     delete (clone as any).genres;
     delete (clone as any).authors;
 
-    console.log("clone=", clone);
-
     try {
       const url = isEdit
         ? `http://localhost:3000/book/${book.id}`

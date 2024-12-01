@@ -1,14 +1,13 @@
 import * as React from "react";
 import { Button } from "@mui/material";
-import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import DialogTitle from "@mui/joy/DialogTitle";
 import Stack from "@mui/joy/Stack";
-import DataGridGenres from "./DataGridC";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import DataGridGenres from "./DataGridGenres";
 
 interface Genre {
   id?: number;
@@ -44,6 +43,7 @@ export default function ModalGenre({
       const foundGenre = data?.find((genre) => genre.id === onEdit);
       if (foundGenre) setGenreName(foundGenre);
     }
+
   }, [onEdit, data]);
 
   const handleSubmit = React.useCallback(async () => {
@@ -65,7 +65,6 @@ export default function ModalGenre({
         { queryKey: ["genres"] },
         { throwOnError: true }
       );
-      console.log("genreName before set=",genreName);
       setGenreName({id: -1 ,name: "" });
       setOnEdit(-1);
       alert(`Genre ${onEdit === -1 ? "added" : "updated"} successfully`);
@@ -95,7 +94,7 @@ export default function ModalGenre({
               handleSubmit();
             }}>
             <Stack spacing={2}>
-              <FormControl>
+              {/* <FormControl> */}
                 <FormLabel>Name</FormLabel>
                 <Input
                   autoFocus
@@ -105,7 +104,7 @@ export default function ModalGenre({
                     setGenreName({ ...genreName, name: e.target.value })
                   }
                 />
-              </FormControl>
+              {/* </FormControl> */}
               <Button disabled={!genreName.name} type="submit">
                 {onEdit === -1 ? "Add" : "Update"} Genre
               </Button>

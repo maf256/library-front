@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Button } from "@mui/material";
-import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import Input from "@mui/joy/Input";
 import Modal from "@mui/joy/Modal";
@@ -169,43 +168,39 @@ export default function ModalAuthor({
               handleSubmit();
             }}>
             <Stack spacing={2}>
-              <FormControl>
-                <FormLabel>Name</FormLabel>
-                <Input
-                  type="text"
-                  name=""
-                  autoFocus
-                  required
-                  value={author.name}
-                  onChange={(e) =>
-                    setAuthor({ ...author, name: e.target.value })
+              <FormLabel>Name</FormLabel>
+              <Input
+                type="text"
+                name=""
+                autoFocus
+                required
+                value={author.name}
+                onChange={(e) => setAuthor({ ...author, name: e.target.value })}
+              />
+              <FormLabel>Biography</FormLabel>
+              <TextField
+                required
+                value={author.biography}
+                multiline
+                rows={4}
+                onChange={(e) =>
+                  setAuthor({ ...author, biography: e.target.value })
+                }
+              />
+              <FormLabel>Birthday</FormLabel>
+              <Input
+                required
+                type="date"
+                value={author.birthday ? author.birthday.split("T")[0] : ""} // Format to YYYY-MM-DD
+                onChange={(e) => {
+                  const inputDate = e.target.value; // Already in YYYY-MM-DD format
+                  if (isValidBirthday(inputDate)) {
+                    setAuthor({ ...author, birthday: inputDate });
+                  } else {
+                    alert("Invalid birthday format or date in the future.");
                   }
-                />
-                <FormLabel>Biography</FormLabel>
-                <TextField
-                  required
-                  value={author.biography}
-                  multiline
-                  rows={4}
-                  onChange={(e) =>
-                    setAuthor({ ...author, biography: e.target.value })
-                  }
-                />
-                <FormLabel>Birthday</FormLabel>
-                <Input
-                  required
-                  type="date"
-                  value={author.birthday ? author.birthday.split("T")[0] : ""} // Format to YYYY-MM-DD
-                  onChange={(e) => {
-                    const inputDate = e.target.value; // Already in YYYY-MM-DD format
-                    if (isValidBirthday(inputDate)) {
-                      setAuthor({ ...author, birthday: inputDate });
-                    } else {
-                      alert("Invalid birthday format or date in the future.");
-                    }
-                  }}
-                />
-              </FormControl>
+                }}
+              />
               <Button
                 disabled={!author.name || !author.biography || !author.birthday}
                 type="submit">
