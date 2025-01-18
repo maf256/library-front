@@ -85,16 +85,21 @@ export default function DataGridBooks() {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`http://localhost:3000/book/${cellValues.row.id}`, {
+      const response = await fetch(`http://localhost:3000/book/${cellValues.row.id}`, {
         method: "DELETE",
       });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to delete book: ${response?.statusText} error status ${response?.status}`);
+      }
+      
       alert("Successfully deleted book");
       queryClient.invalidateQueries({
         queryKey: ["books"],
       }); // Refetch after deletion
     } catch (error) {
       console.error("Error:", error);
-      alert("Error deleting book. Please try again.");
+      alert(`Error deleting book. Please try again. ${error}`);
     }
   };
 
@@ -163,24 +168,24 @@ export default function DataGridBooks() {
 
   return (
     <>
-      <ModalAuthor
+      {/* <ModalAuthor
         openModalAuthor={openModalAuthor}
         setOpenModalAuthor={setOpenModalAuthor}
       />
       <ModalGenre
         openModalGenre={openModalGenre}
         setOpenModalGenre={setOpenModalGenre}
-      />
+      /> */}
 
       {/* <Button sx={{ mb: 2 }} variant="contained" onClick={() => setOpen(true)}>Add Book</Button> */}
-      <ModalAddEditBook
+      {/* <ModalAddEditBook
         open={open}
         setOpen={setOpen}
         book={book}
         setBook={setBook}
         isEdit={editMode}
         setEdit={setEditMode}
-      />
+      /> */}
       <DataGrid
         rows={books} // Pass correctly formatted rows
         columns={columns}
