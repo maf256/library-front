@@ -2,7 +2,7 @@ import { Typography, Box } from "@mui/material";
 import DataGridBooks from "./components/book/DataGridBook";
 import ModalLogin from "./components/login/ModalLogin";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import isLoggedin from "./util/isLoggedin";
 
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <ModalLogin openModalLogin={openModalLogin} setOpenModalLogin={setOpenModalLogin} />
-      <button onClick={() => setOpenModalLogin(true)}>Login</button>
+      { isLoggedin() ? '' : <button onClick={() => setOpenModalLogin(true)}>Login</button> }
       <Box
         sx={{
           display: "flex",

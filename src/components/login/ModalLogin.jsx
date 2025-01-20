@@ -51,7 +51,7 @@ export default function ModalLogin({
     },
     onSuccess: (data) => {
       localStorage.setItem("token", data.token); // Store token
-      queryClient.setQueryData("user", { email: data.user.email }); // Update user data
+      queryClient.setQueryData("user", { email: data.email }); // Update user data
       alert(`${isLogin} successful`);
       handleClose();
     },
@@ -67,7 +67,7 @@ export default function ModalLogin({
     e.preventDefault();
     loginOrRegisterMutation.mutate({
       isLogin,
-      user: { name: user.name, email: user.email, password: user.password },
+      user: { email: user.email, password: user.password },
     });
   };
   
