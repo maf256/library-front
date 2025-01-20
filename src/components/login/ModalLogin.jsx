@@ -9,6 +9,7 @@ import Stack from "@mui/joy/Stack";
 import FormControl from '@mui/joy/FormControl';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function ModalLogin({
   openModalLogin,
@@ -20,51 +21,56 @@ export default function ModalLogin({
     password: "",
   });
   const [isLogin, setIsLogin] = React.useState('Login');
+  const queryClient = useQueryClient();
+
+  const loginOrRegisterMutation = useMutation(
+    async ({ isLogin, user }) => {
+      const response = await fetch(
+        isLogin === "Login"
+          ? "http://localhost:3000/login/login"
+          : "http://localhost:3000/login/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user),
+        }
+      );
+
+      if (!response.ok) {
+        const errorMessage = {
+          400: "User already exists",
+          404: "User not found",
+          500: "Server error",
+        }[response.status] || "Invalid credentials";
+        throw new Error(errorMessage);
+      }
+
+      return response.json(); // Return data from the server
+    },
+    {
+      onSuccess: (data) => {
+        localStorage.setItem("token", data.token); // Store token
+        queryClient.setQueryData("user", { email: data.user.email }); // Update user data
+        alert(`${isLogin} successful`);
+        handleClose();
+      },
+      onError: (error) => {
+        alert(`Error: ${error.message}`);
+      },
+    }
+  );
 
   const handleChangeRadio = (event) => {
     setIsLogin(event.target.value);
   };
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-  
-    try {
-      const response = await fetch(
-        isLogin === "Login"
-          ? 'http://localhost:3000/login/login'
-          : 'http://localhost:3000/login/register',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: user.name,
-            email: user.email,
-            password: user.password,
-          }),
-        }
-      );
-  
-      console.log(response);
-  
-      if (!response.ok) {
-        // Handle specific error responses
-        let errorMessage = 'Invalid credentials';
-        if (response.status === 400) errorMessage = 'User already exists';
-        if (response.status === 404) errorMessage = 'User not found';
-        if (response.status === 500) errorMessage = 'Server error. Please try again later.';
-  
-        throw new Error(errorMessage);
-      }
-  
-      const data = await response.json();
-      localStorage.setItem('token', data.token); // Store the token
-      alert(`${isLogin} successful`);
-      handleClose();
-    } catch (error) {
-      console.error('Login error:', error);
-      alert(`Error: ${error.message}`); // Display correct error message
-    }
+    loginOrRegisterMutation.mutate({
+      isLogin,
+      user: { name: user.name, email: user.email, password: user.password },
+    });
   };
   
   
