@@ -23,8 +23,8 @@ export default function ModalLogin({
   const [isLogin, setIsLogin] = React.useState('Login');
   const queryClient = useQueryClient();
 
-  const loginOrRegisterMutation = useMutation(
-    async ({ isLogin, user }) => {
+  const loginOrRegisterMutation = useMutation({
+    mutationFn: async ({ isLogin, user }) => {
       const response = await fetch(
         isLogin === "Login"
           ? "http://localhost:3000/login/login"
@@ -49,18 +49,16 @@ export default function ModalLogin({
 
       return response.json(); // Return data from the server
     },
-    {
-      onSuccess: (data) => {
-        localStorage.setItem("token", data.token); // Store token
-        queryClient.setQueryData("user", { email: data.user.email }); // Update user data
-        alert(`${isLogin} successful`);
-        handleClose();
-      },
-      onError: (error) => {
-        alert(`Error: ${error.message}`);
-      },
-    }
-  );
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.token); // Store token
+      queryClient.setQueryData("user", { email: data.user.email }); // Update user data
+      alert(`${isLogin} successful`);
+      handleClose();
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
 
   const handleChangeRadio = (event) => {
     setIsLogin(event.target.value);
